@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LV Segurança — Residencial e Empresarial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #080808;
+      --black-2: #0f0f0f;
+      --black-3: #161616;
+      --gray-1: #2a2a2a;
+      --gray-2: #5a5a5a;
+      --gray-3: #8a8a8a;
+      --yellow: #FFD600;
+      --yellow-dark: #E6BE00;
+      --yellow-muted: rgba(255, 214, 0, 0.08);
+      --white: #f5f5f5;
+      --white-muted: rgba(245, 245, 245, 0.6);
+      --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --gutter: clamp(1rem, 4vw, 4rem);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── scanline overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+    }
+
+    ::selection {
+      background: var(--yellow);
+      color: var(--black);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    /* ── utility ── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: '';
+      width: 1.5rem;
+      height: 1px;
+      background: var(--yellow);
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── header / nav ── */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.25rem var(--gutter);
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: border-color 0.3s;
+    }
+    header.scrolled {
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .logo-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border: 2px solid var(--yellow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--yellow);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+    .logo-sub {
+      display: block;
+      font-size: 0.6rem;
+      font-weight: 400;
+      color: var(--gray-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: -0.15rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.875rem;
+      color: var(--white-muted);
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--yellow);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover {
+      color: var(--white);
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .btn-cta-nav {
+      background: var(--yellow);
+      color: var(--black);
+      padding: 0.55rem 1.5rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      transition: background 0.2s;
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    }
+    .btn-cta-nav:hover {
+      background: var(--yellow-dark);
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    /* ── hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-top: 5rem;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,214,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,214,0,0.03) 1px, transparent 1px);
+      background-size: 4rem 4rem;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+    }
+    .hero-glow {
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 60%;
+      height: 80%;
+      background: radial-gradient(circle at 70% 50%, rgba(255,214,0,0.06) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--gray-3);
+      border: 1px solid var(--gray-1);
+      padding: 0.4rem 1rem;
+      margin-bottom: 2rem;
+      clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+    }
+    .hero-badge span {
+      color: var(--yellow);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 .highlight {
+      color: var(--yellow);
+      position: relative;
+    }
+    .hero h1 .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: 0.1em;
+      left: 0;
+      right: 0;
+      height: 0.15em;
+      background: var(--yellow);
+      opacity: 0.25;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      color: var(--white-muted);
+      max-width: 36rem;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--yellow);
+      color: var(--black);
+      padding: 1rem 2.5rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--yellow-dark);
+      transform: translateY(-2px);
+    }
+    .btn-primary .arrow {
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--white);
+      padding: 1rem 2.5rem;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.9rem;
+      border: 1px solid var(--gray-1);
+      cursor: pointer;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--yellow);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--gray-1);
+    }
+    .hero-stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--white);
+    }
+    .hero-stat-value .yellow {
+      color: var(--yellow);
+    }
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--gray-3);
+      margin-top: 0.15rem;
+    }
+
+    /* ── services ── */
+    .services {
+      padding: 7rem 0;
+      background: var(--black-2);
+      position: relative;
+    }
+    .services::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-1), transparent);
+    }
+
+    .services-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+    .services-header .section-title {
+      max-width: 28rem;
+    }
+    .services-header p {
+      color: var(--gray-3);
+      max-width: 24rem;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--gray-1);
+      border: 1px solid var(--gray-1);
+    }
+    .service-card {
+      background: var(--black-2);
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: background 0.3s;
+      cursor: default;
+    }
+    .service-card:hover {
+      background: var(--black-3);
+    }
+    .service-card:hover .service-icon {
+      color: var(--yellow);
+    }
+
+    .service-icon {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      color: var(--gray-3);
+      transition: color 0.3s;
+    }
+    .service-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+    .service-card p {
+      font-size: 0.85rem;
+      color: var(--gray-3);
+      line-height: 1.6;
+    }
+
+    /* ── about ── */
+    .about {
+      padding: 7rem 0;
+      position: relative;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .about-content p {
+      color: var(--white-muted);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+    .about-content p:last-of-type {
+      margin-bottom: 2rem;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+    .about-frame {
+      position: relative;
+      background: var(--black-3);
+      padding: 2rem;
+      border: 1px solid var(--gray-1);
+      clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+    }
+    .about-frame-inner {
+      border: 1px solid var(--gray-1);
+      padding: 1.5rem;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--gray-3);
+    }
+    .about-frame-inner .cam-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      background: var(--yellow);
+      border-radius: 50%;
+      margin-bottom: 1rem;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .about-frame-inner .tagline {
+      color: var(--yellow);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    /* ── differentiators ── */
+    .diff {
+      padding: 7rem 0;
+      background: var(--black-2);
+      position: relative;
+    }
+    .diff::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-1), transparent);
+    }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2px;
+      background: var(--gray-1);
+      border: 1px solid var(--gray-1);
+      margin-top: 3rem;
+    }
+    .diff-card {
+      background: var(--black-2);
+      padding: 2.5rem 2rem;
+      transition: background 0.3s;
+    }
+    .diff-card:hover {
+      background: var(--black-3);
+    }
+    .diff-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+    .diff-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .diff-card p {
+      font-size: 0.85rem;
+      color: var(--gray-3);
+      line-height: 1.7;
+    }
+
+    /* ── cta quote ── */
+    .quote {
+      padding: 7rem 0;
+      position: relative;
+    }
+    .quote-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .quote-info .section-title {
+      margin-bottom: 1.5rem;
+    }
+    .quote-info > p {
+      color: var(--white-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .quote-contacts {
+      display: grid;
+      gap: 1rem;
+    }
+    .quote-contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+    .quote-contact-item .icon {
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--gray-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .quote-contact-item a {
+      color: var(--white-muted);
+      transition: color 0.2s;
+    }
+    .quote-contact-item a:hover {
+      color: var(--yellow);
+    }
+
+    .quote-form {
+      background: var(--black-3);
+      border: 1px solid var(--gray-1);
+      padding: 2.5rem;
+      clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+    }
+    .quote-form .form-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .quote-form .form-sub {
+      font-size: 0.85rem;
+      color: var(--gray-3);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--gray-3);
+      margin-bottom: 0.4rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid var(--gray-1);
+      padding: 0.85rem 1rem;
+      color: var(--white);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--yellow);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 6rem;
+    }
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%238a8a8a'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      cursor: pointer;
+    }
+    .form-group select option {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--black);
+      padding: 1rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover {
+      background: var(--yellow-dark);
+    }
+
+    /* ── footer ── */
+    footer {
+      padding: 3rem 0;
+      border-top: 1px solid var(--gray-1);
+      background: var(--black-2);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--gray-3);
+    }
+    .footer-copy .yellow {
+      color: var(--yellow);
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.8rem;
+      color: var(--gray-3);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--yellow);
+    }
+
+    /* ── scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ── responsive ── */
+    @media (max-width: 900px) {
+      .hero-stats {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .quote-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: rgba(8,8,8,0.98);
+        padding: 1.5rem var(--gutter);
+        gap: 1.25rem;
+        border-bottom: 1px solid var(--gray-1);
+      }
+      .nav-links.open {
+        display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      .diff-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-actions {
+        flex-direction: column;
+      }
+      .btn-primary, .btn-outline {
+        width: 100%;
+        justify-content: center;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .services-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="header">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">LV</div>
+        <div>
+          <div>LV Segurança</div>
+          <div class="logo-sub">Residencial &amp; Empresarial</div>
+        </div>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu">≡</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#servicos">Serviços</a></li>
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#diferenciais">Diferenciais</a></li>
+        <li><a href="#orcamento" class="btn-cta-nav">Orçamento</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero-grid-bg"></div>
+      <div class="hero-glow"></div>
+      <div class="container">
+        <div class="hero-badge reveal">
+          <span>◆</span> Segurança que funciona 24/7
+        </div>
+        <h1 class="reveal reveal-delay-1">
+          Sua<br>
+          <span class="highlight">proteção</span><br>
+          é o nosso negócio
+        </h1>
+        <p class="reveal reveal-delay-2">
+          Câmeras, alarmes, cercas elétricas, interfones e concertina para
+          residências e empresas. Soluções completas em segurança eletrônica
+          com instalação profissional e monitoramento 24 horas.
+        </p>
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="#orcamento" class="btn-primary">
+            Solicitar Orçamento
+            <span class="arrow">→</span>
+          </a>
+          <a href="#servicos" class="btn-outline">
+            Nossos Serviços
+          </a>
+        </div>
+        <div class="hero-stats reveal reveal-delay-3">
+          <div>
+            <div class="hero-stat-value"><span class="yellow">+</span>500</div>
+            <div class="hero-stat-label">Sistemas Instalados</div>
+          </div>
+          <div>
+            <div class="hero-stat-value"><span class="yellow">12</span>+</div>
+            <div class="hero-stat-label">Anos de Experiência</div>
+          </div>
+          <div>
+            <div class="hero-stat-value"><span class="yellow">98</span>%</div>
+            <div class="hero-stat-label">Clientes Satisfeitos</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services" id="servicos">
+      <div class="container">
+        <div class="services-header reveal">
+          <div>
+            <div class="section-label">Serviços</div>
+            <h2 class="section-title">Soluções completas<br>em segurança</h2>
+          </div>
+          <p>
+            Da proteção perimetral ao monitoramento inteligente, oferecemos
+            tudo o que você precisa para proteger o que é mais importante.
+          </p>
+        </div>
+        <div class="services-grid">
+          <div class="service-card reveal reveal-delay-1">
+            <span class="service-icon">◉</span>
+            <h3>Câmeras de Segurança</h3>
+            <p>HD, Full HD e 4K com visão noturna, gravação contínua e acesso remoto pelo celular em tempo real.</p>
+          </div>
+          <div class="service-card reveal reveal-delay-2">
+            <span class="service-icon">◈</span>
+            <h3>Alarmes</h3>
+            <p>Sistemas inteligentes com sensores de presença, abertura e disparo automático com notificação no celular.</p>
+          </div>
+          <div class="service-card reveal reveal-delay-1">
+            <span class="service-icon">▤</span>
+            <h3>Cercas Elétricas</h3>
+            <p>Barreira elétrica de alta tensão com sensores de violação e alarme integrado para proteção perimetral.</p>
+          </div>
+          <div class="service-card reveal reveal-delay-2">
+            <span class="service-icon">◉</span>
+            <h3>Interfones</h3>
+            <p>Comunicação via áudio e vídeo com câmera integrada, abertura remota e painel de visitantes.</p>
+          </div>
+          <div class="service-card reveal reveal-delay-1">
+            <span class="service-icon">▤</span>
+            <h3>Concertina</h3>
+            <p>Proteção cortante de alto impacto para muros e grades, com instalação segura e durável.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about" id="sobre">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-content reveal">
+            <div class="section-label">Sobre Nós</div>
+            <h2 class="section-title" style="margin-bottom:1.5rem">
+              Referência em segurança<br>
+              há mais de <span class="yellow" style="color:var(--yellow)">12 anos</span>
+            </h2>
+            <p>
+              A <strong>LV Segurança</strong> nasceu da necessidade de oferecer
+              serviços de segurança eletrônica com qualidade, responsabilidade e
+              compromisso real com a proteção dos nossos clientes.
+            </p>
+            <p>
+              Atendemos residências e empresas com projetos personalizados,
+              produtos de primeira linha e uma equipe técnica treinada para
+              garantir que cada instalação seja feita com excelência.
+            </p>
+            <p>
+              Residencial e empresarial — da casa ao condomínio, do comércio
+              à indústria, temos a solução certa para você.
+            </p>
+            <a href="#orcamento" class="btn-primary" style="display:inline-flex">
+              Fale Conosco
+              <span class="arrow">→</span>
+            </a>
+          </div>
+          <div class="about-visual reveal reveal-delay-2">
+            <div class="about-frame">
+              <div class="about-frame-inner">
+                <div class="cam-dot"></div>
+                <div style="font-family:var(--font-mono);font-size:1rem;color:var(--white);font-weight:600;letter-spacing:0.05em">
+                  LV SEGURANÇA
+                </div>
+                <div style="font-size:0.7rem;margin-top:0.3rem;letter-spacing:0.1em;text-transform:uppercase">
+                  Residencial &amp; Empresarial
+                </div>
+                <div class="tagline">Sua segurança é nosso compromisso</div>
+                <div style="display:flex;gap:0.25rem;margin-top:1rem;font-size:0.6rem;color:var(--gray-2)">
+                  <span style="color:var(--yellow)">◆</span>
+                  <span>MONITORAMENTO 24H</span>
+                  <span style="color:var(--yellow);margin-left:0.5rem">◆</span>
+                  <span>INSTALAÇÃO PROFISSIONAL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFFERENTIATORS -->
+    <section class="diff" id="diferenciais">
+      <div class="container">
+        <div class="reveal">
+          <div class="section-label">Diferenciais</div>
+          <h2 class="section-title">Por que escolher<br>a LV Segurança?</h2>
+        </div>
+        <div class="diff-grid">
+          <div class="diff-card reveal reveal-delay-1">
+            <div class="diff-num">01</div>
+            <h3>Projetos Personalizados</h3>
+            <p>Cada imóvel é único. Analisamos suas necessidades e criamos um sistema sob medida para sua proteção.</p>
+          </div>
+          <div class="diff-card reveal reveal-delay-2">
+            <div class="diff-num">02</div>
+            <h3>Equipe Certificada</h3>
+            <p>Profissionais treinados e certificados pelas melhores marcas do mercado para instalação e manutenção.</p>
+          </div>
+          <div class="diff-card reveal reveal-delay-1">
+            <div class="diff-num">03</div>
+            <h3>Monitoramento 24h</h3>
+            <p>Central de monitoramento operando 24 horas por dia, 7 dias por semana, com resposta imediata a eventos.</p>
+          </div>
+          <div class="diff-card reveal reveal-delay-2">
+            <div class="diff-num">04</div>
+            <h3>Produtos Premium</h3>
+            <p>Trabalhamos com as melhores marcas do mercado: Intelbras, Hikvision, JFL, Gales e muito mais.</p>
+          </div>
+          <div class="diff-card reveal reveal-delay-1">
+            <div class="diff-num">05</div>
+            <h3>Suporte Técnico</h3>
+            <p>Suporte ágil e eficiente sempre que você precisar. Assistência técnica com peças originais.</p>
+          </div>
+          <div class="diff-card reveal reveal-delay-2">
+            <div class="diff-num">06</div>
+            <h3>Garantia Estendida</h3>
+            <p>Oferecemos garantia de fábrica e estendida em todos os nossos serviços e equipamentos instalados.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUOTE -->
+    <section class="quote" id="orcamento">
+      <div class="container">
+        <div class="quote-inner">
+          <div class="quote-info reveal">
+            <div class="section-label">Orçamento</div>
+            <h2 class="section-title">Solicite seu<br>orçamento agora</h2>
+            <p>
+              Preencha o formulário ou entre em contato pelos canais abaixo.
+              Respondemos em até <strong style="color:var(--yellow)">15 minutos</strong>
+              durante o horário comercial.
+            </p>
+            <div class="quote-contacts">
+              <div class="quote-contact-item">
+                <div class="icon">📞</div>
+                <a href="tel:+5561999999999">(61) 99999-9999</a>
+              </div>
+              <div class="quote-contact-item">
+                <div class="icon">✉</div>
+                <a href="mailto:contato@lvseguranca.com.br">contato@lvseguranca.com.br</a>
+              </div>
+              <div class="quote-contact-item">
+                <div class="icon">📍</div>
+                <span style="color:var(--white-muted)">Brasília / Caxias do Sul</span>
+              </div>
+              <div class="quote-contact-item" style="margin-top:0.5rem">
+                <a href="https://wa.me/5561999999999" class="btn-primary" style="padding:0.75rem 1.5rem;font-size:0.85rem">
+                  WhatsApp
+                  <span class="arrow">→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="quote-form reveal reveal-delay-2">
+            <div class="form-title">Solicitar Orçamento</div>
+            <div class="form-sub">Preencha os dados abaixo que entraremos em contato.</div>
+            <form id="quoteForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Nome</label>
+                  <input type="text" id="name" name="name" required placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                  <label for="phone">Telefone</label>
+                  <input type="tel" id="phone" name="phone" required placeholder="(61) 99999-9999">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="seu@email.com">
+              </div>
+              <div class="form-group">
+                <label for="service">Serviço de interesse</label>
+                <select id="service" name="service" required>
+                  <option value="">Selecione...</option>
+                  <option value="cameras">Câmeras de Segurança</option>
+                  <option value="alarmes">Alarmes</option>
+                  <option value="cercas">Cercas Elétricas</option>
+                  <option value="interfones">Interfones</option>
+                  <option value="concertina">Concertina</option>
+                  <option value="completo">Sistema Completo</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message">Mensagem</label>
+                <textarea id="message" name="message" placeholder="Descreva seu imóvel e suas necessidades..."></textarea>
+              </div>
+              <button type="submit" class="btn-submit">
+                Enviar Orçamento →
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-copy">
+          &copy; 2026 <span class="yellow">LV Segurança</span> — Residencial e Empresarial
+        </div>
+        <ul class="footer-links">
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#diferenciais">Diferenciais</a></li>
+          <li><a href="#orcamento">Orçamento</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── mobile menu ──
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => {
+      nav.classList.toggle('open');
+    });
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => nav.classList.remove('open'));
+    });
+
+    // ── header scroll effect ──
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ── scroll reveal ──
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // ── form submit ──
+    const form = document.getElementById('quoteForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const btn = form.querySelector('.btn-submit');
+      const original = btn.textContent;
+      btn.textContent = '✓ Enviando...';
+      btn.style.background = '#2a2a2a';
+      btn.style.color = '#8a8a8a';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.textContent = '✓ Orçamento solicitado!';
+        btn.style.background = '#1a3a1a';
+        btn.style.color = '#5aff5a';
+
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.style.background = '';
+          btn.style.color = '';
+          btn.disabled = false;
+          form.reset();
+        }, 3000);
+      }, 1200);
+    });
+
+    // ── smooth nav on load if hash ──
+    if (window.location.hash) {
+      setTimeout(() => {
+        const el = document.querySelector(window.location.hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  </script>
+
+</body>
+</html>
